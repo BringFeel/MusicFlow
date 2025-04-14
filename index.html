@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MusicFlow - Tu plataforma de música</title>
+    <style>
+        :root {
+            --primary: #bb86fc;
+            --primary-dark: #a370db;
+            --secondary: #03dac6;
+            --secondary-dark: #00b5a6;
+            --dark-bg: #121212;
+            --dark-surface: #1e1e1e;
+            --dark-card: #2d2d2d;
+            --light-text: #e0e0e0;
+            --muted-text: #aaa;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--light-text);
+            line-height: 1.6;
+        }
+        
+        a {
+            text-decoration: none;
+            color: var(--primary);
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header */
+        header {
+            background-color: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            padding: 1rem 0;
+            transition: all 0.3s ease;
+        }
+        
+        header.scrolled {
+            background-color: rgba(18, 18, 18, 0.95);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+        
+        .logo img {
+            width: 40px;
+            margin-right: 10px;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+        
+        .nav-links li {
+            margin-left: 30px;
+        }
+        
+        .nav-links a {
+            color: var(--light-text);
+            position: relative;
+            padding-bottom: 5px;
+            transition: color 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+        
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--primary);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+        
+        .cta-button {
+            background-color: var(--primary);
+            color: var(--dark-bg) !important;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        
+        .cta-button:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .cta-button::after {
+            display: none;
+        }
+        
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.9)), url('/api/placeholder/1600/800') no-repeat center center/cover;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, transparent 0%, var(--dark-bg) 70%);
+            z-index: 1;
+        }
+        
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+            padding: 0 20px;
+        }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+        
+        .hero h1 span {
+            color: var(--primary);
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: var(--muted-text);
+        }
+        
+        .hero-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        
+        .hero-btn {
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        
+        .primary-btn {
+            background-color: var(--primary);
+            color: var(--dark-bg);
+        }
+        
+        .primary-btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(187, 134, 252, 0.3);
+        }
+        
+        .secondary-btn {
+            background-color: transparent;
+            color: var(--light-text);
+            border: 2px solid var(--primary);
+        }
+        
+        .secondary-btn:hover {
+            background-color: rgba(187, 134, 252, 0.1);
+            transform: translateY(-3px);
+        }
+        
+        .floating-notes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+        
+        .note {
+            position: absolute;
+            color: var(--primary);
+            opacity: 0.2;
+            font-size: 2rem;
+            animation: float 20s linear infinite;
+        }
+        
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.2;
+            }
+            90% {
+                opacity: 0.2;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        /* Features Section */
+        .features {
+            padding: 120px 0;
+            background-color: var(--dark-surface);
+        }
+        
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .section-header h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .section-header h2::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: -10px;
+            width: 50px;
+            height: 3px;
+            background-color: var(--secondary);
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+        
+        .feature-card {
+            background-color: var(--dark-card);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .feature-icon {
+            width: 70px;
+            height: 70px;
+            background-color: rgba(187, 134, 252, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 2rem;
+            color: var(--primary);
+        }
+        
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+        
+        .feature-card p {
+            color: var(--muted-text);
+        }
+        
+        /* How It Works */
+        .how-it-works {
+            padding: 120px 0;
+            background-color: var(--dark-bg);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: 80px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .step {
+            display: flex;
+            gap: 40px;
+            align-items: center;
+        }
+        
+        .step:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+        
+        .step-number {
+            font-size: 8rem;
+            font-weight: bold;
+            color: rgba(187, 134, 252, 0.1);
+            line-height: 1;
+        }
+        
+        .step-content {
+            flex: 1;
+        }
+        
+        .step h3 {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            color: var(--secondary);
+        }
+        
+        .step-image {
+            flex: 1;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .step-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .bg-wave {
+            position: absolute;
+            width: 100%;
+            opacity: 0.05;
+            z-index: 1;
+        }
+        
+        .bg-wave-top {
+            top: 0;
+        }
+        
+        .bg-wave-bottom {
+            bottom: 0;
+            transform: rotate(180deg);
+        }
+        
+        /* Testimonials */
+        .testimonials {
+            padding: 120px 0;
+            background-color: var(--dark-surface);
+        }
+        
+        .testimonial-slider {
+            margin-top: 60px;
+            display: flex;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            gap: 30px;
+            padding: 20px 0;
+        }
+        
+        .testimonial-slider::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .testimonial-card {
+            flex: 0 0 350px;
+            scroll-snap-align: start;
+            background-color: var(--dark-card);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .testimonial-quote {
+            font-size: 1.1rem;
+            font-style: italic;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .testimonial-quote::before {
+            content: '"';
+            font-size: 4rem;
+            color: var(--primary);
+            opacity: 0.2;
+            position: absolute;
+            top: -20px;
+            left: -15px;
+            line-height: 1;
+        }
+        
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+        }
+        
+        .testimonial-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 15px;
+            background-color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark-bg);
+            font-weight: bold;
+        }
+        
+        .testimonial-info h4 {
+            margin-bottom: 5px;
+        }
+        
+        .testimonial-info p {
+            color: var(--muted-text);
+            font-size: 0.9rem;
+        }
+        
+        /* Pricing */
+        .pricing {
+            padding: 120px 0;
+            background-color: var(--dark-bg);
+        }
+        
+        .pricing-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 60px;
+        }
+        
+        .pricing-card {
+            background-color: var(--dark-card);
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .pricing-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .pricing-card.popular::before {
+            content: 'Popular';
+            position: absolute;
+            top: 20px;
+            right: -30px;
+            background-color: var(--secondary);
+            color: var(--dark-bg);
+            padding: 5px 30px;
+            transform: rotate(45deg);
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .pricing-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+        }
+        
+        .price {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+        
+        .price span {
+            font-size: 1rem;
+            font-weight: normal;
+            color: var(--muted-text);
+        }
+        
+        .pricing-features {
+            list-style: none;
+            margin-bottom: 30px;
+        }
+        
+        .pricing-features li {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .pricing-features li:last-child {
+            border-bottom: none;
+        }
+        
+        .pricing-btn {
+            display: inline-block;
+            background-color: var(--primary);
+            color: var(--dark-bg);
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .pricing-btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(187, 134, 252, 0.3);
+        }
+        
+        /* CTA */
+        .cta {
+            padding: 120px 0;
+            background: linear-gradient(to right, var(--primary-dark), var(--primary));
+            text-align: center;
+        }
+        
+        .cta h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: var(--dark-bg);
+        }
+        
+        .cta p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            color: rgba(18, 18, 18, 0.8);
+        }
+        
+        .cta-action {
+            background-color: var(--dark-bg);
+            color: var(--primary);
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-weight: bold;
+            display: inline-block;
+            transition: all 0.3s ease;
+        }
+        
+        .cta-action:hover {
+            background-color: rgba(18, 18, 18, 0.9);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Footer */
+        footer {
+            background-color: var(--dark-surface);
+            padding: 80px 0 30px;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 40px;
+            margin-bottom: 60px;
+        }
+        
+        .footer-logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .footer-logo img {
+            width: 30px;
+            margin-right: 10px;
+        }
+        
+        .footer-about p {
+            color: var(--muted-text);
+            margin-bottom: 20px;
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .social-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            color: var(--light-text);
+            transition: all 0.3s ease;
+        }
+        
+        .social-link:hover {
+            background-color: var(--primary);
+            color: var(--dark-bg);
+            transform: translateY(-3px);
+        }
+        
+        .footer-links h4 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: var(--light-text);
+        }
+        
+        .footer-links ul {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+        
+        .footer-links a {
+            color: var(--muted-text);
+            transition: color 0.3s;
+        }
+        
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--muted-text);
+            font-size: 0.9rem;
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .step {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .step:nth-child(even) {
+                flex-direction: column;
+            }
+            
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">
+                    <span>♪</span> MusicFlow
+                </div>
+                <ul class="nav-links">
+                    <li><a href="#features">Características</a></li>
+                    <li><a href="#how-it-works">Cómo funciona</a></li>
+                    <li><a href="app" class="cta-button">Comenzar</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="floating-notes">
+            <span class="note" style="left: 10%; animation-duration: 15s; animation-delay: 0s;">♪</span>
+            <span class="note" style="left: 20%; animation-duration: 18s; animation-delay: 2s;">♫</span>
+            <span class="note" style="left: 30%; animation-duration: 20s; animation-delay: 1s;">♩</span>
+            <span class="note" style="left: 40%; animation-duration: 12s; animation-delay: 3s;">♪</span>
+            <span class="note" style="left: 60%; animation-duration: 16s; animation-delay: 2s;">♬</span>
+            <span class="note" style="left: 70%; animation-duration: 14s; animation-delay: 0s;">♪</span>
+            <span class="note" style="left: 80%; animation-duration: 17s; animation-delay: 4s;">♫</span>
+            <span class="note" style="left: 90%; animation-duration: 19s; animation-delay: 1s;">♩</span>
+        </div>
+        <div class="hero-content">
+            <h1>Tu música favorita <span>cuando quieras</span>, donde quieras</h1>
+            <p>Busca, descubre y descarga millones de canciones en alta calidad en segundos. La manera más rápida y sencilla de disfrutar tu música.</p>
+            <div class="hero-buttons">
+                <a class="hero-btn primary-btn" href="app">Probar ahora</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header">
+                <h2>Características destacadas</h2>
+                <p>Descubre todo lo que puedes hacer con MusicFlow</p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🔍</div>
+                    <h3>Búsqueda inteligente</h3>
+                    <p>Encuentra cualquier canción o álbum en segundos con nuestro potente motor de búsqueda.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Descarga rápida</h3>
+                    <p>Descarga tus canciones favoritas a máxima velocidad para disfrutarlas sin conexión.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🎧</div>
+                    <h3>Alta calidad</h3>
+                    <p>Disfruta de audio en formatos MP3 y FLAC para una experiencia sonora excepcional.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <h3>Multiplataforma</h3>
+                    <p>Accede desde cualquier dispositivo y disfruta de tu música donde quieras.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🔄</div>
+                    <h3>Actualización constante</h3>
+                    <p>Nuevos lanzamientos disponibles al instante en nuestra plataforma.</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">👥</div>
+                    <h3>Recomendaciones</h3>
+                    <p>Descubre nueva música basada en tus gustos y preferencias.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="bg-wave bg-wave-top">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="#bb86fc" fill-opacity="1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,133.3C672,139,768,181,864,176C960,171,1056,117,1152,96C1248,75,1344,85,1392,90.7L1440,96L1440,0L1392,0C1344,0,1248,0,1152,0C1056,0,960,0,864,0C768,0,672,0,576,0C480,0,384,0,288,0C192,0,96,0,48,0L0,0Z"></path></svg>
+        </div>
+        
+        <div class="container">
+            <div class="section-header">
+                <h2>Cómo funciona</h2>
+                <p>Tres simples pasos para disfrutar de tu música</p>
+            </div>
+            
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Busca tu música</h3>
+                        <p>Ingresa el nombre de una canción o álbum en nuestro buscador. Nuestro sistema rastreará millones de canciones para encontrar exactamente lo que buscas.</p>
+                    </div>
+                    <div class="step-image"></div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Explora los resultados</h3>
+                        <p>Revisa los resultados de búsqueda con información detallada como artista, álbum y portada. Encuentra exactamente lo que estabas buscando.</p>
+                    </div>
+                    <div class="step-image"></div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Descarga y disfruta</h3>
+                        <p>Selecciona el formato que prefieras (MP3 o FLAC) y descarga tu música al instante. ¡Listo para disfrutar!</p>
+                    </div>
+                    <div class="step-image"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-wave bg-wave-bottom">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="#bb86fc" fill-opacity="1" d="M0,160L48,170.7C96,181,192,203,288,202.7C384,203,480,181,576,165.3C672,149,768,139,864,154.7C960,171,1056,213,1152,213.3C1248,213,1344,171,1392,149.3L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="testimonials">
+        <div class="container">
+            <div class="section-header">
+                <h2>Lo que dicen nuestros usuarios</h2>
+                <p>Miles de personas ya disfrutan de MusicFlow</p>
+            </div>
+            
+            <div class="testimonial-slider">
+                <div class="testimonial-card">
+                    <div class="testimonial-quote">
+                        La mejor plataforma para descargar música que he encontrado. Rápida, confiable y con una calidad de audio inmejorable. ¡No puedo dejar de recomendarla!
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">MG</div>
+                        <div class="testimonial-info">
+                            <h4>María González</h4>
+                            <p>Usuario Premium</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial-card">
+                    <div class="testimonial-quote">
+                        Increíble la facilidad con la que encuentro canciones que en otras plataformas ni aparecen. La opción de formato FLAC es un gran plus para los amantes del audio de alta fidelidad.
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">AR</div>
+                        <div class="testimonial-info">
+                            <h4>Alejandro Rodríguez</h4>
+                            <p>DJ profesional</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="testimonial-card">
+                    <div class="testimonial-quote">
+                        La interfaz es super intuitiva y las descargas son rapidísimas. Desde que descubrí MusicFlow ya no uso ninguna otra plataforma. ¡Simplemente funciona!
+                    </div>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">SC</div>
+                        <div class="testimonial-info">
+                            
